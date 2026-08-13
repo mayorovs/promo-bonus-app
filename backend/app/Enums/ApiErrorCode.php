@@ -13,4 +13,7 @@ enum ApiErrorCode: string
     case ValidationFailed = 'VALIDATION_FAILED';
     case InvalidCredentials = 'INVALID_CREDENTIALS';
     case Unauthenticated = 'UNAUTHENTICATED';
+    case PromoCodeNotFound = 'PROMO_CODE_NOT_FOUND';
+    case PromoCodeExpired = 'PROMO_CODE_EXPIRED';
+    case PromoCodeAlreadyClaimed = 'PROMO_CODE_ALREADY_CLAIMED';
 }
