@@ -151,18 +151,28 @@ Styling rules:
 
 Keep `AI_PROMPTS_LOG.md` chronological.
 
-For each meaningful prompt, record:
+After every meaningful implementation, review, or correction prompt, automatically append an entry to `AI_PROMPTS_LOG.md` before giving the final response.
 
-- ticket or project stage;
-- exact prompt;
-- requested scope;
-- result;
-- files or areas changed;
-- tests or checks performed;
-- problems discovered;
-- follow-up corrections.
+Each entry must contain:
 
-Do not include secrets, access tokens, personal email addresses, or private system information in the log.
+- the project stage or ticket;
+- the exact user prompt without changes;
+- a brief summary of the completed result;
+- the files or areas changed;
+- the commands and validations actually performed;
+- any problems discovered;
+- any follow-up corrections, if required.
+
+Do not record:
+
+- short confirmations or routine status messages;
+- prompts whose only purpose is updating the log;
+- secrets, credentials, email addresses, or absolute local paths;
+- internal AI reasoning.
+
+Never modify or paraphrase the exact text of previously recorded prompts.
+
+Do not include private system information in the log.
 
 Keep `README.md` updated with:
 
