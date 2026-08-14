@@ -1,0 +1,5 @@
+# Compose reads this file for host-side ports and database credentials.
+.env
+
+.DS_Store
+Thumbs.db

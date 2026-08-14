@@ -298,3 +298,55 @@ claim. The full suite reported 126 passed with 416 assertions and Laravel Pint r
 issues across 62 files.
 
 **Commit:** Not yet committed.
+
+### 2026-08-14 — Frontend scaffolding and Docker service
+
+**Stage:** Frontend setup — Vue 3, TypeScript and Vite, before any feature work.
+
+**Prompt:**
+
+```text
+Create a frontend directory with Vue 3, TypeScript, and Vite. Use the Composition API with <script setup lang="ts">.
+
+Install axios and sass. Add a frontend service to this project's Docker configuration and run it on localhost:5173.
+
+Verify that the starter page loads and the production build passes. Do not implement login or promo code features yet.
+```
+
+**Result:** A Vue 3.5 and TypeScript project was scaffolded in `frontend/` with Vite 8, and axios and
+sass were installed. Because the Docker configuration now orchestrates two applications, the compose
+file was moved from `backend/` to the repository root, with the service build contexts and volumes
+repointed at `./backend` and `./frontend`; a root `.env.example` documents the host-side ports and a
+root `.gitignore` keeps a real `.env` out of version control. The new frontend service runs the Vite
+dev server on `localhost:5173` and keeps `node_modules` in a named Docker volume rather than in the
+cloud-synced project folder. A minimal SCSS entry point was added and imported so the sass toolchain
+is exercised by both the dev server and the build. The dev server returned the Vue application with
+`200`, the compiled SCSS was served, the production build passed including `vue-tsc` type checking,
+and the backend suite still reported 126 passed with 416 assertions after the compose move. No login
+or promo features were implemented.
+
+**Commit:** Not yet committed.
+
+### 2026-08-14 — Frontend dependencies available to the editor
+
+**Stage:** Frontend setup — editor tooling.
+
+**Prompt:**
+
+```text
+Fix the red import errors in local VS Code.
+
+Currently, node_modules is available only inside Docker, so the editor cannot resolve Vue or the image asset types. Update the Docker configuration so the dependencies are also available in frontend/node_modules.
+
+Make sure node_modules remains ignored by Git. After the change, verify TypeScript and the production build.
+```
+
+**Result:** The named volume that had been hiding `node_modules` from the host was removed from the
+frontend service, so dependencies now install into `frontend/node_modules` inside the bind mount and
+the editor can resolve them. No type declaration file was needed: the scaffold already points
+`tsconfig.app.json` at `vite/client`, which declares the image asset modules, and that package only
+had to become visible on the host. Git still ignores the directory through `frontend/.gitignore`,
+confirmed by listing every untracked file and finding no entry under it. A forced full `vue-tsc`
+build reported no type errors, the production build passed, and the dev server still answered `200`.
+
+**Commit:** Not yet committed.

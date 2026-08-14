@@ -1,0 +1,13 @@
+// Entry point for the stylesheet. The design system tokens, themes and mixins
+// will live alongside this file; for now it only proves the SCSS toolchain is
+// wired into both the dev server and the production build.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}

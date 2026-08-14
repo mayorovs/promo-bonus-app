@@ -5,11 +5,11 @@ name: promo-bonus-app
 services:
   app:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     working_dir: /var/www/html
     volumes:
-      - .:/var/www/html
+      - ./backend:/var/www/html
     ports:
       # Host port is configurable to avoid collisions with other local projects.
       - "${APP_PORT:-8000}:8000"
@@ -28,13 +28,25 @@ services:
       - "${DB_PORT_HOST:-55432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./backend/docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test:
         ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-promo} -d ${DB_DATABASE:-promo_bonus}"]
       interval: 5s
       timeout: 5s
       retries: 12
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      # node_modules deliberately stays inside the bind mount rather than in a
+      # named volume, so the editor on the host can resolve Vue and the Vite
+      # asset types. Git ignores it through frontend/.gitignore.
+      - ./frontend:/app
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    command: sh -c "npm install && npm run dev"
 
 volumes:
   pgdata:
