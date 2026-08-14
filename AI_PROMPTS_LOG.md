@@ -552,3 +552,249 @@ login returned `200` with a token, `GET /api/me` returned the player, `POST /api
 build reported no type errors and the production build passed. Promo codes were not implemented.
 
 **Commit:** Not yet committed.
+
+### 2026-08-14 — Promo code claim form
+
+**Stage:** Ticket 1 frontend — claiming a promo bonus.
+
+**Prompt:**
+
+```text
+Add a promo code claim form to the dashboard and connect it to POST /api/promo/claim.
+
+Create a separate promo service, types, and a PromoClaimForm component in src/components/promo.
+
+The form should:
+
+- accept a code containing 6–12 Latin letters or digits;
+- show a loading state;
+- prevent repeated submission while the request is running;
+- show a success message with the credited bonus amount;
+- show the clear error reason returned by the backend;
+- update the player's balance on the dashboard after success.
+
+Make the form responsive and reuse the existing components, SCSS tokens, and scoped styles. Do not add history yet.
+
+For manual verification, create the required local promo codes with a one-off command without adding a separate file to the project. Verify malformed, unknown, expired, valid, and repeated codes. Also verify TypeScript and the production build.
+```
+
+**Follow-up correction prompt:**
+
+```text
+Fix only the PromoClaimForm validation behavior.
+
+Currently, an invalid code such as ABC disables the button, so the backend 422 response and field error cannot be shown in the form.
+
+Disable the button only when the field is empty or while loading. Submit any non-empty code to the backend so it remains the validation authority and the existing form can display errors.code.
+
+Keep the format hint. Verify ABC through the form, TypeScript, and the production build. Do not change anything else.
+```
+
+**Result:** A promo service and its request and response types were added, and a `PromoClaimForm`
+component in `src/components/promo` reuses the existing input, button and alert. The dashboard owns
+the request state and the form stays presentational, matching how the login form already works. The
+code is bound with `v-model` so the page can clear it after a successful claim. Submission is
+blocked while a request runs, both through the disabled button and a guard in the handler. A
+successful claim shows the credited amount as a success alert and updates the visible balance from
+the value the backend returned, through a new `updateBalance` on the authentication composable.
+Validation messages are rendered against the field and any other refusal shows the backend's own
+reason. The input gained an optional hint, announced with the field, describing the accepted format.
+Promo codes for verification were created with one-off commands rather than a file in the
+repository. Against the running backend a malformed code returned `422` with a field message, an
+unknown code `409` `PROMO_CODE_NOT_FOUND`, an expired code `409` `PROMO_CODE_EXPIRED`, a valid code
+`201` crediting the bonus and returning the new balance, and repeating it `409`
+`PROMO_CODE_ALREADY_CLAIMED`. A forced full `vue-tsc` build reported no type errors and the
+production build passed. History was not implemented.
+
+The first version also mirrored the accepted format on the client and kept the button disabled until
+a code matched it, which meant a malformed code could never reach the backend and its field message
+could never be shown. That was corrected: the button is now disabled only for an empty field or a
+running request, any other code is sent, and the backend's `422` message is rendered against the
+field. The format hint remains as guidance. Submitting `ABC` was confirmed to reach the backend and
+return the field message, and the type check and production build were run again.
+
+**Commit:** Not yet committed.
+
+### 2026-08-14 — Promo claim history on the dashboard
+
+**Stage:** Ticket 1 frontend — claim history, filters and pagination.
+
+**Prompt:**
+
+```text
+Add promo claim history to the dashboard and connect it to GET /api/promo/history.
+
+Extend the promo service and types for history records and pagination. Create separate history components in src/components/promo.
+
+The history should show:
+
+- code;
+- date;
+- bonus amount;
+- status;
+- rejection reason when present.
+
+Add filters for All, Applied, Rejected, and Revoked. Use the backend pagination of 10 records with Previous/Next buttons and the current page number.
+
+Show loading, empty, and loading-error states. After a successful promo claim, automatically refresh the first history page.
+
+Also update the shared BaseSpinner component. Instead of a circular spinner, it should display three dots in a horizontal row. The dots should animate smoothly one after another, inherit their color from the parent, and work correctly inside buttons and larger loading states. Respect prefers-reduced-motion and do not create another loader component.
+
+Make the list responsive and accessible, using the existing SCSS tokens and scoped styles. Do not add the revoke button yet.
+
+Verify history, filters, every loader usage, TypeScript, and the production build.
+```
+
+**Result:** Generic pagination types were added alongside the existing API error types, and promo
+specific types now cover a claim record, its status and rejection reason, and the history query. The
+promo service gained a history call whose omitted parameters simply list everything. Four focused
+components were added: filters as a group of pressed buttons, one record, the list with its loading,
+empty and error states, and pagination with Previous and Next around the current page number. A
+reusable status badge was added and the record maps a status to its wording and colour, showing the
+rejection reason underneath when present and a dash where no money moved. The dashboard owns the
+history state, resets to the first page whenever the filter changes, and reloads the first page after
+a successful claim while keeping the chosen filter rather than silently resetting it. The shared
+loader now renders three dots that pulse in sequence, scaled from the same custom property the button
+and the full page loader already set and coloured by `currentColor`, with an explicit rule that
+leaves them steady rather than frozen mid animation when reduced motion is preferred; no second
+loader component was introduced. Against the running backend the default page returned ten of fifteen
+records across two pages, the second page returned the remaining five, and the three filters returned
+one applied, thirteen rejected across two pages, and one revoked. A forced full `vue-tsc` build
+reported no type errors and the production build passed. The revoke button was not added.
+
+**Commit:** Not yet committed.
+
+### 2026-08-14 — Promo bonus revocation in the history
+
+**Stage:** Ticket 2 frontend — revoking a credited bonus.
+
+**Prompt:**
+
+```text
+Add promo bonus revocation to the history and connect it to PATCH /api/promo/{claimId}/revoke.
+
+Show a Revoke button only for records with the applied status. After it is clicked, show a clean confirmation with Cancel and Confirm revoke buttons.
+
+While the request is running, prevent repeated actions and show a loading state. After a successful revocation:
+
+- update the balance from the backend response;
+- refresh the history;
+- show the revoked status;
+- remove the revoke button.
+
+Show clear backend errors for an already revoked claim, a rejected claim, or insufficient balance.
+
+Extend the existing promo service and types. Do not use the standard window.confirm—make the confirmation part of the existing UI with scoped SCSS.
+
+Verify successful revocation, a repeated attempt, the balance update, TypeScript, and the production build.
+```
+
+**Result:** The promo service and types were extended with the revocation call and its response. A
+revoke button appears only on records whose status is applied, and activating it replaces the button
+with an inline confirmation built from the existing components and scoped styles rather than the
+browser dialog. The confirmation spells out the consequence, naming the amount that will be taken
+back and that the code cannot be claimed again. Because the activated button unmounts as the
+confirmation opens and closes, focus is moved deliberately to Cancel and back again, so a keyboard
+user is not dropped to the top of the document; Cancel rather than the destructive action receives
+focus. Only one revocation may run at a time: the dashboard tracks which record is in flight, that
+record's confirm button shows the loading state, and every other record's revoke button is disabled.
+On success the balance is taken from the response and the current history page is reloaded, so the
+record shows the revoked status and loses its button. A refusal is shown against the record it
+belongs to, carrying the backend's own reason. Against the running backend a balance of 130000 rose
+to 131000 on claiming, a revocation returned the revoked status with 130000 and the balance matched,
+repeating it returned `409` `PROMO_CLAIM_ALREADY_REVOKED` while leaving the balance untouched,
+revoking a rejected attempt returned `409` `PROMO_CLAIM_NOT_REVOCABLE`, and an unknown claim returned
+`404`. Insufficient balance is covered by the backend suite rather than by moving demo data. A forced
+full `vue-tsc` build reported no type errors and the production build passed.
+
+**Commit:** Not yet committed.
+
+### 2026-08-14 — Dashboard layout and Load more pagination
+
+**Stage:** Ticket 2 frontend — dashboard layout and history paging.
+
+**Prompt:**
+
+```text
+Update the dashboard layout and history pagination without changing any other functionality.
+
+On large screens, use a two-column layout:
+
+- a left column around 360px wide containing the player balance card and the promo claim form below it;
+- a right column using the remaining width for the larger history card.
+
+The dashboard should use the same maximum width as the header to remove the excessive empty space on both sides. Align both columns at the top and keep consistent spacing between the cards.
+
+On tablets and phones, return to a single-column layout in this order: balance, promo claim form, history.
+
+Also replace the Previous/Next pagination with a single Load more button.
+
+Initially show the first 10 records. Each click on Load more should request the next backend page and append its records to the existing list.
+
+While the next page is loading:
+
+- show the three-dot loader;
+- prevent repeated clicks;
+- keep the already loaded records visible;
+- hide the button after the last page.
+
+When the status filter changes, clear the previous records and load the first page for the new filter. Do not use automatic infinite scroll.
+
+Use CSS Grid, the existing breakpoints, SCSS tokens, and scoped styles. Do not change the API, promo claim form, authentication logic, or data formats.
+
+Verify the desktop, tablet, and mobile layout, filters, Load more behavior, TypeScript, and the production build.
+```
+
+**Result:** The dashboard now uses a CSS grid that is a single column by default and becomes a fixed
+left column beside a flexible right column at the existing large breakpoint, with both columns
+aligned to the top and one spacing token used between and inside them. The two cards of the left
+column are wrapped together, so the single column order on smaller screens follows the source order
+of balance, claim form and history without any reordering rules. The shared maximum width token was
+widened so the dashboard ends at the same edge as the header while still leaving the right column
+wider than the sidebar; the header on the login screen therefore spans wider too. The Previous and
+Next control was removed and replaced by a single Load more button rendered under the records, which
+requests the next backend page and appends it. A separate loading flag distinguishes the first page,
+which shows the full loader, from an appended page, which keeps the existing records on screen and
+shows the three dot loader inside the button while blocking further clicks. The button disappears
+once the last page has been loaded, and a failure while appending is shown under the records rather
+than replacing them. Changing the filter discards what was loaded and requests the first page again.
+Against the running backend the sequence was confirmed for every filter: fifteen records over two
+pages with the button shown then hidden, rejected over two pages, and applied and revoked on a single
+page with the button hidden immediately. A forced full `vue-tsc` build reported no type errors and the
+production build passed.
+
+**Commit:** Not yet committed.
+
+### 2026-08-14 — Custom email validation on the login form
+
+**Stage:** Frontend — login form input validation.
+
+**Prompt:**
+
+```text
+Add custom email validation to the login form.
+
+Disable the browser's native validation messages for the form, but keep the input type="email".
+
+If the email format is invalid, show this message below the field:
+"Enter a valid email address."
+
+Show the error after the field loses focus or after a form submission attempt. Do not send the API request while the email is invalid. Clear the error when the user corrects the email.
+
+Keep handling validation errors returned by the backend. Do not change the design or other parts of the form.
+
+Verify TypeScript and the production build.
+```
+
+**Result:** The form carries `novalidate` so the browser's own bubbles no longer appear, while the
+field keeps its email type for the right keyboard and semantics. A shape check drives the message,
+which is held back until the field has lost focus or a submission has been attempted, so nothing
+appears while the address is still being typed. Submitting with an invalid address marks the attempt
+and returns without emitting, so no request is sent. Because the message is computed from the current
+value it disappears as soon as the address becomes valid. A backend message for the same field still
+shows whenever the format itself is acceptable. The blur was observed through `focusout`, since
+`blur` does not bubble to the component's root element, which kept the change inside the form. The
+stylesheet came out byte for byte the same size as the previous build, confirming the design was
+untouched. A forced full `vue-tsc` build reported no type errors and the production build passed.
+
+**Commit:** Not yet committed.
