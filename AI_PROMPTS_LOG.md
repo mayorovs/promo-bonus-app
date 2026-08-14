@@ -268,3 +268,33 @@ repeat or skip a record. The full suite reported 110 passed with 349 assertions,
 reported no style issues across 58 files, and the route answered `401` without a token.
 
 **Commit:** Not yet committed.
+
+### 2026-08-14 — Promo bonus revocation endpoint
+
+**Stage:** Ticket 2 — revoking a wrongly credited bonus.
+
+**Prompt:**
+
+```text
+Implement the backend for revoking a promo bonus: PATCH /api/promo/{claimId}/revoke.
+
+A player may revoke only their own successfully applied promo claim. Subtract the original bonus amount from the balance and return the updated balance and claim status.
+
+Trying to revoke an already revoked claim, a rejected claim, or another player's claim should return a clear error.
+
+Add tests.
+```
+
+**Result:** `PATCH /api/promo/{claimId}/revoke` sits behind `auth:sanctum` and is handled by a
+`RevokePromoClaim` action that runs in a transaction and locks the player row in the same order as
+crediting. The claim is looked up scoped to the authenticated player, so another player's claim is
+indistinguishable from one that does not exist and both answer `404` with `PROMO_CLAIM_NOT_FOUND`.
+An already revoked claim returns `409` with `PROMO_CLAIM_ALREADY_REVOKED`, a rejected attempt
+returns `409` with `PROMO_CLAIM_NOT_REVOCABLE`, and a balance too low to absorb the reversal returns
+`409` with `INSUFFICIENT_BALANCE` while changing nothing. On success the status moves to revoked
+through a compare and swap on the applied state, the original bonus amount is subtracted, and the
+response returns the new status and balance. A refused revocation persists nothing, unlike a refused
+claim. The full suite reported 126 passed with 416 assertions and Laravel Pint reported no style
+issues across 62 files.
+
+**Commit:** Not yet committed.

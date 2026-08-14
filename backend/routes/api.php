@@ -5,6 +5,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PromoClaimHistoryController;
+use App\Http\Controllers\RevokePromoClaimController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class, 'store'])->name('login');
@@ -15,4 +16,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/promo/claim', [ClaimPromoCodeController::class, 'store'])->name('promo.claim');
     Route::get('/promo/history', [PromoClaimHistoryController::class, 'index'])->name('promo.history');
+
+    // Constrained to digits so it cannot shadow /promo/claim or /promo/history.
+    Route::patch('/promo/{claimId}/revoke', [RevokePromoClaimController::class, 'update'])
+        ->whereNumber('claimId')
+        ->name('promo.revoke');
 });

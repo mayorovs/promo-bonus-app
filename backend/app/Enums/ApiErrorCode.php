@@ -16,4 +16,8 @@ enum ApiErrorCode: string
     case PromoCodeNotFound = 'PROMO_CODE_NOT_FOUND';
     case PromoCodeExpired = 'PROMO_CODE_EXPIRED';
     case PromoCodeAlreadyClaimed = 'PROMO_CODE_ALREADY_CLAIMED';
+    case PromoClaimNotFound = 'PROMO_CLAIM_NOT_FOUND';
+    case PromoClaimAlreadyRevoked = 'PROMO_CLAIM_ALREADY_REVOKED';
+    case PromoClaimNotRevocable = 'PROMO_CLAIM_NOT_REVOCABLE';
+    case InsufficientBalance = 'INSUFFICIENT_BALANCE';
 }
