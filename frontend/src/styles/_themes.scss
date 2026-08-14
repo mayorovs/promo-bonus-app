@@ -24,6 +24,10 @@
   --color-warning: #{c.$amber-600};
   --color-danger: #{c.$red-600};
 
+  // Tinted backgrounds for status messages.
+  --color-success-surface: #{color.change(c.$green-600, $alpha: 0.12)};
+  --color-danger-surface: #{color.change(c.$red-600, $alpha: 0.12)};
+
   --color-focus: #{c.$indigo-500};
 
   --shadow-sm: 0 1px 2px #{color.change(c.$black, $alpha: 0.08)};
@@ -49,6 +53,9 @@
   --color-success: #{c.$green-400};
   --color-warning: #{c.$amber-400};
   --color-danger: #{c.$red-400};
+
+  --color-success-surface: #{color.change(c.$green-400, $alpha: 0.16)};
+  --color-danger-surface: #{color.change(c.$red-400, $alpha: 0.16)};
 
   --color-focus: #{c.$indigo-300};
 

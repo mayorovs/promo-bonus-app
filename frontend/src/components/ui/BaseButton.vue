@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import BaseSpinner from '@/components/ui/BaseSpinner.vue'
 
 interface Props {
   type?: 'button' | 'submit'
+  variant?: 'primary' | 'secondary'
   loading?: boolean
   disabled?: boolean
   block?: boolean
@@ -10,6 +12,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'button',
+  variant: 'primary',
   loading: false,
   disabled: false,
   block: false,
@@ -23,11 +26,11 @@ const isDisabled = computed(() => props.disabled || props.loading)
   <button
     :type="type"
     class="button"
-    :class="{ 'button--block': block }"
+    :class="[`button--${variant}`, { 'button--block': block }]"
     :disabled="isDisabled"
     :aria-busy="loading || undefined"
   >
-    <span v-if="loading" class="button__spinner" aria-hidden="true"></span>
+    <BaseSpinner v-if="loading" />
     <span v-if="loading" class="button__status">Loading</span>
     <span class="button__label"><slot /></span>
   </button>
@@ -45,17 +48,13 @@ const isDisabled = computed(() => props.disabled || props.loading)
   justify-content: center;
   min-height: 2.75rem;
   padding: $space-2xs $space-md;
-  color: var(--color-on-primary);
-  background-color: var(--color-primary);
   border: 1px solid transparent;
   border-radius: $radius-md;
   transition:
+    color $transition-fast,
     background-color $transition-fast,
+    border-color $transition-fast,
     opacity $transition-fast;
-
-  &:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-  }
 
   &:focus-visible {
     @include focus-ring;
@@ -66,28 +65,33 @@ const isDisabled = computed(() => props.disabled || props.loading)
     opacity: 0.55;
   }
 
-  &--block {
-    width: 100%;
+  &--primary {
+    color: var(--color-on-primary);
+    background-color: var(--color-primary);
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-primary-hover);
+    }
   }
 
-  &__spinner {
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid currentcolor;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+  &--secondary {
+    color: var(--color-text);
+    background-color: transparent;
+    border-color: var(--color-border);
+
+    &:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+  }
+
+  &--block {
+    width: 100%;
   }
 
   // Announced to screen readers; the spinner alone conveys nothing to them.
   &__status {
     @include visually-hidden;
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 </style>

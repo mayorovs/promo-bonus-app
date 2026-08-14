@@ -1,28 +1,42 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import LoginForm from '@/components/auth/LoginForm.vue'
-import ThemeToggle from '@/components/ui/ThemeToggle.vue'
+import AppHeader from '@/components/ui/AppHeader.vue'
+import { useAuth } from '@/composables/useAuth'
+import { toApiError } from '@/services/apiClient'
 import type { LoginCredentials } from '@/types/auth'
 
-// The page owns the request state the form reacts to. The API call itself is
-// wired up in the next step.
-const loading = ref(false)
+const { signIn } = useAuth()
 
-function handleSubmit(_credentials: LoginCredentials): void {
-  // Deliberately not connected to the API yet.
+const loading = ref(false)
+const errorMessage = ref<string | null>(null)
+const fieldErrors = ref<Record<string, string[]>>({})
+
+async function handleSubmit(credentials: LoginCredentials): Promise<void> {
+  loading.value = true
+  errorMessage.value = null
+  fieldErrors.value = {}
+
+  try {
+    await signIn(credentials)
+  } catch (error) {
+    const apiError = toApiError(error)
+
+    fieldErrors.value = apiError.fieldErrors
+
+    // Validation messages are shown on the fields themselves; anything else,
+    // such as wrong credentials, needs a general message.
+    errorMessage.value =
+      Object.keys(apiError.fieldErrors).length > 0 ? null : apiError.message
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
 <template>
   <div class="login">
-    <header class="login__bar">
-      <div class="login__brand">
-        <span class="login__mark" aria-hidden="true">PB</span>
-        <span class="login__wordmark">Promo Bonus</span>
-      </div>
-
-      <ThemeToggle />
-    </header>
+    <AppHeader />
 
     <main class="login__main">
       <section class="login__card" aria-labelledby="login-heading">
@@ -31,7 +45,12 @@ function handleSubmit(_credentials: LoginCredentials): void {
           Enter your details to claim and manage promo bonuses.
         </p>
 
-        <LoginForm :loading="loading" @submit="handleSubmit" />
+        <LoginForm
+          :loading="loading"
+          :error-message="errorMessage"
+          :field-errors="fieldErrors"
+          @submit="handleSubmit"
+        />
       </section>
     </main>
   </div>
@@ -44,44 +63,6 @@ function handleSubmit(_credentials: LoginCredentials): void {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-
-  &__bar {
-    display: flex;
-    gap: $space-sm;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    max-width: $layout-max-width;
-    margin: 0 auto;
-    padding: $space-sm;
-  }
-
-  &__brand {
-    display: flex;
-    gap: $space-2xs;
-    align-items: center;
-  }
-
-  &__mark {
-    display: grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    font-size: $font-size-caption;
-    font-weight: $font-weight-semibold;
-    letter-spacing: 0.04em;
-    color: var(--color-on-primary);
-    background-color: var(--color-primary);
-    border-radius: $radius-md;
-  }
-
-  &__wordmark {
-    @include label;
-
-    color: var(--color-text);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
 
   &__main {
     display: flex;

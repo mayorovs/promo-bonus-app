@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Vite's default ignores cover *.local but not .env itself.
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

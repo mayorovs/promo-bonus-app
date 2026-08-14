@@ -168,7 +168,7 @@ required expiration timestamp. Case insensitivity is guaranteed by the database 
 constraint combined with a check constraint that refuses any code which is not already uppercase, so
 it does not depend on the model mutator alone. No claiming logic was added. Tests passed.
 
-**Commit:** Not yet committed.
+**Commit:** `7a766f7`
 
 ### 2026-08-14 — Promo claim history model and table
 
@@ -198,7 +198,7 @@ repeat. Check constraints additionally keep each row internally consistent: a re
 carries a reason and no amount, while an applied or revoked claim carries a real promo code, a
 positive amount, and no reason. No API or crediting logic was added. Tests passed.
 
-**Commit:** Not yet committed.
+**Commit:** `7a766f7`
 
 ### 2026-08-14 — Promo code claim endpoint
 
@@ -231,7 +231,7 @@ is credited, an applied record is written, and the response returns the bonus am
 balance with `201`. Double crediting is prevented by the row lock plus the partial unique index,
 with a revoked claim also blocking a new one. Tests passed.
 
-**Commit:** Not yet committed.
+**Commit:** `7a766f7`
 
 ### 2026-08-14 — Promo claim history endpoint
 
@@ -267,7 +267,7 @@ status enum, so an unknown value returns `422`. Ordering breaks ties on the id s
 repeat or skip a record. The full suite reported 110 passed with 349 assertions, Laravel Pint
 reported no style issues across 58 files, and the route answered `401` without a token.
 
-**Commit:** Not yet committed.
+**Commit:** `7b8d5c9`
 
 ### 2026-08-14 — Promo bonus revocation endpoint
 
@@ -297,7 +297,7 @@ response returns the new status and balance. A refused revocation persists nothi
 claim. The full suite reported 126 passed with 416 assertions and Laravel Pint reported no style
 issues across 62 files.
 
-**Commit:** Not yet committed.
+**Commit:** `5c907b6`
 
 ### 2026-08-14 — Frontend scaffolding and Docker service
 
@@ -325,7 +325,7 @@ is exercised by both the dev server and the build. The dev server returned the V
 and the backend suite still reported 126 passed with 416 assertions after the compose move. No login
 or promo features were implemented.
 
-**Commit:** Not yet committed.
+**Commit:** `75aa7c3`
 
 ### 2026-08-14 — Frontend dependencies available to the editor
 
@@ -349,7 +349,7 @@ had to become visible on the host. Git still ignores the directory through `fron
 confirmed by listing every untracked file and finding no entry under it. A forced full `vue-tsc`
 build reported no type errors, the production build passed, and the dev server still answered `200`.
 
-**Commit:** Not yet committed.
+**Commit:** `75aa7c3`
 
 ### 2026-08-14 — Base SCSS structure and design tokens
 
@@ -390,7 +390,7 @@ A forced full `vue-tsc` build reported no type errors, the production build pass
 was checked to contain both theme blocks while every component declaration referenced a semantic
 custom property rather than a colour value.
 
-**Commit:** Not yet committed.
+**Commit:** `7d65fe1`
 
 ### 2026-08-14 — Theme toggle
 
@@ -425,7 +425,7 @@ colours. A forced full `vue-tsc` build reported no type errors, the production b
 built output was checked to contain the pre-paint script, the attribute handling and the hidden
 label styles.
 
-**Commit:** Not yet committed.
+**Commit:** `d0fc26b`
 
 ### 2026-08-14 — Login page
 
@@ -467,5 +467,88 @@ semantic tokens so both themes work. The page title was changed to Promo Bonus A
 `vue-tsc` build reported no type errors, the production build passed, and the built output was
 checked for the accessibility attributes, focus rings, disabled styles and the responsive
 breakpoint.
+
+**Commit:** `d8e776d`
+
+### 2026-08-14 — Login connected to the API
+
+**Stage:** Frontend — authentication against the real backend.
+
+**Prompt:**
+
+```text
+Connect the existing login form to POST /api/login.
+
+Create a separate typed axios client and authentication service in src/services. Read the backend URL from VITE_API_URL and add it to .env.example.
+
+Add types for the player, login response, and API errors. Show the loading state during the request. For 422 responses, show the related field errors, and for invalid credentials, show a clear general error message.
+
+After a successful login, save the token and temporarily show the player's name and balance instead of the form.
+
+Do not implement promo codes or history yet. Verify failed and successful login against the real backend, TypeScript, and the production build.
+```
+
+**Follow-up correction prompt:**
+
+```text
+Create one local test player for manually verifying the login. Do not add a separate file for creating this player or store the login credentials in the repository. Show the test email and password only in the final response.
+```
+
+**Result:** A typed axios client in `src/services` reads its base URL from `VITE_API_URL`, attaches
+the bearer token to later requests, and normalises both backend errors and transport failures into a
+single shape carrying a code, a message and per-field messages. The authentication service performs
+the login request and keeps the issued token. Types were added for the player, the login response
+and API errors, and the environment variable itself was typed so a misspelling is a compile error.
+The form shows the loading state, renders 422 messages against the fields they belong to, and shows
+the backend's own message as a general alert for invalid credentials; after a successful login the
+page shows the player's name and formatted balance instead of the form. `.env.example` documents the
+variable and `.env` was added to the frontend ignore rules, which the Vite scaffold did not cover.
+Against the running backend a wrong password returned `401` with `INVALID_CREDENTIALS`, malformed
+input returned `422` with per-field errors, and a valid login returned `200` with the token and
+player, whose token then authenticated `GET /api/me`. Cross-origin requests from the dev server were
+confirmed to be allowed. A forced full `vue-tsc` build reported no type errors and the production
+build passed. Promo codes and history were not implemented.
+
+**Commit:** Not yet committed.
+
+### 2026-08-14 — Frontend authentication flow
+
+**Stage:** Frontend — session restore and sign out.
+
+**Prompt:**
+
+```text
+Complete the frontend authentication flow.
+
+When the application starts:
+
+- read the stored token;
+- attach it to axios;
+- call GET /api/me;
+- show a loading state while the session is checked;
+- show the authenticated player when the token is valid;
+- show the login form when the token is missing or invalid.
+
+Add a logout button that calls POST /api/logout, clears the token, and returns to the login form.
+
+Keep the shared authentication state in a separate composable and reuse the existing types, services, and components. Do not implement promo codes yet.
+
+Verify the complete flow: login → page reload → /api/me → logout. Also verify TypeScript and the production build.
+```
+
+**Result:** A `useAuth` composable holds the session at module level as a three state value of
+checking, authenticated or guest, so every component sees the same session. On start up it reads the
+stored token, attaches it to the client and confirms it with `GET /api/me` before anything is shown,
+which prevents a stale token from flashing an authenticated screen. A token the server rejects with
+`UNAUTHENTICATED` is discarded, while a transport failure keeps it so a later start can succeed. The
+authentication service gained calls for the current player and for signing out, the latter forgetting
+the token locally even when the request fails so a player is never stuck in a session they cannot
+leave. The header was extracted into a shared component with a slot for page actions, the spinner was
+extracted so the button and the session screen share one implementation, and the button gained a
+secondary variant for signing out. `App.vue` now switches between the loading state, the
+authenticated view and the login form. Against the running backend the full sequence was confirmed:
+login returned `200` with a token, `GET /api/me` returned the player, `POST /api/logout` returned
+`204`, and the same token afterwards returned `401`, as did an invented one. A forced full `vue-tsc`
+build reported no type errors and the production build passed. Promo codes were not implemented.
 
 **Commit:** Not yet committed.
