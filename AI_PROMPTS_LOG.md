@@ -232,3 +232,39 @@ balance with `201`. Double crediting is prevented by the row lock plus the parti
 with a revoked claim also blocking a new one. Tests passed.
 
 **Commit:** Not yet committed.
+
+### 2026-08-14 — Promo claim history endpoint
+
+**Stage:** Ticket 1 — claim history listing.
+
+**Prompt:**
+
+```text
+Implement `GET /api/promo/history` for the current player.
+
+Return records from newest to oldest, with 10 records per page. Add an optional status filter accepting `applied`, `rejected`, or `revoked`. An invalid status should return `422`.
+
+For each record, return the id, code, bonus amount, status, rejection reason, and creation date. Use Laravel’s standard pagination format.
+
+Add tests for authentication, pagination, filtering, and ensuring that a player can only see their own history.
+```
+
+**Follow-up correction prompt:**
+
+```text
+Docker is running. Continue the current task.
+
+Start only the `promo-bonus-app` Docker Compose project, then run the full test suite and Laravel Pint. Also verify the history route.
+
+Report only the actual results. If a test fails, find the cause and fix it first.
+```
+
+**Result:** `GET /api/promo/history` sits behind `auth:sanctum` and lists only the authenticated
+player's claims, ten per page, newest first, in Laravel's standard paginated resource format. Each
+record exposes the id, the submitted code, the bonus amount in minor units, the status, the
+rejection reason, and the creation date in UTC. The optional status filter is validated against the
+status enum, so an unknown value returns `422`. Ordering breaks ties on the id so pagination cannot
+repeat or skip a record. The full suite reported 110 passed with 349 assertions, Laravel Pint
+reported no style issues across 58 files, and the route answered `401` without a token.
+
+**Commit:** Not yet committed.
