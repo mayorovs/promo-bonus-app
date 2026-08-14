@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 
 interface Props {
   label: string
   type?: 'text' | 'email' | 'password'
   autocomplete?: string
   placeholder?: string
+  /** Guidance shown under the field and announced with it. */
+  hint?: string
   required?: boolean
   disabled?: boolean
   error?: string
@@ -15,6 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
   type: 'text',
   autocomplete: undefined,
   placeholder: undefined,
+  hint: undefined,
   required: false,
   disabled: false,
   error: undefined,
@@ -25,7 +28,22 @@ const model = defineModel<string>({ required: true })
 // A generated id keeps the label bound to its own input even when several of
 // these appear on one page.
 const inputId = useId()
+const hintId = `${inputId}-hint`
 const errorId = `${inputId}-error`
+
+const describedBy = computed(() => {
+  const ids: string[] = []
+
+  if (props.hint) {
+    ids.push(hintId)
+  }
+
+  if (props.error) {
+    ids.push(errorId)
+  }
+
+  return ids.length > 0 ? ids.join(' ') : undefined
+})
 </script>
 
 <template>
@@ -43,8 +61,10 @@ const errorId = `${inputId}-error`
       :required="required"
       :disabled="disabled"
       :aria-invalid="props.error ? true : undefined"
-      :aria-describedby="props.error ? errorId : undefined"
+      :aria-describedby="describedBy"
     />
+
+    <p v-if="props.hint" :id="hintId" class="field__hint">{{ props.hint }}</p>
 
     <p v-if="props.error" :id="errorId" class="field__error" role="alert">
       {{ props.error }}
@@ -100,6 +120,12 @@ const errorId = `${inputId}-error`
     &--invalid {
       border-color: var(--color-danger);
     }
+  }
+
+  &__hint {
+    @include caption;
+
+    color: var(--color-text-muted);
   }
 
   &__error {

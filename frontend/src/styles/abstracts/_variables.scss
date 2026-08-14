@@ -43,8 +43,11 @@ $radius-pill: 999px;
 $transition-fast: 120ms ease;
 $transition-base: 200ms ease;
 
-$layout-max-width: 45rem;
+// Shared by the header and the dashboard, so both end at the same edge.
+$layout-max-width: 64rem;
 $layout-form-width: 25rem;
+// The dashboard's left column on a wide screen.
+$layout-sidebar-width: 22.5rem;
 
 // Mobile first: every breakpoint is used as a minimum width.
 $breakpoints: (

@@ -66,6 +66,18 @@ async function signIn(credentials: LoginCredentials): Promise<void> {
   status.value = 'authenticated'
 }
 
+/**
+ * Applies a balance the backend has already recorded, so the visible figure
+ * matches after an operation that moved money.
+ */
+function updateBalance(balance: number): void {
+  if (player.value === null) {
+    return
+  }
+
+  player.value = { ...player.value, balance }
+}
+
 async function signOut(): Promise<void> {
   try {
     await logoutRequest()
@@ -85,5 +97,6 @@ export function useAuth() {
     restoreSession,
     signIn,
     signOut,
+    updateBalance,
   }
 }
