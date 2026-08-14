@@ -1,16 +1,47 @@
+<script setup lang="ts">
+import ThemeToggle from '@/components/ThemeToggle.vue'
+</script>
+
 <template>
-  <main class="landing">
-    <p class="landing__eyebrow">Promo bonuses</p>
-    <h1 class="landing__title">Promo Bonus App</h1>
-    <p class="landing__text">
-      The design system is in place. Authentication and the promo code features
-      follow in the next steps.
-    </p>
-  </main>
+  <div class="app">
+    <header class="app__header">
+      <span class="app__brand">Promo Bonus</span>
+      <ThemeToggle />
+    </header>
+
+    <main class="landing">
+      <p class="landing__eyebrow">Promo bonuses</p>
+      <h1 class="landing__title">Promo Bonus App</h1>
+      <p class="landing__text">
+        The design system is in place. Authentication and the promo code features
+        follow in the next steps.
+      </p>
+    </main>
+  </div>
 </template>
 
 <style scoped lang="scss">
 @use '@/styles/abstracts' as *;
+
+.app {
+  &__header {
+    display: flex;
+    gap: $space-sm;
+    align-items: center;
+    justify-content: space-between;
+    max-width: $layout-max-width;
+    margin: 0 auto;
+    padding: $space-sm;
+  }
+
+  &__brand {
+    @include label;
+
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+}
 
 .landing {
   max-width: $layout-max-width;

@@ -5,6 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>frontend</title>
+    <script>
+      // Applies a stored theme before the first paint, so reloading does not
+      // flash the wrong colours before the app has booted. Leaving the
+      // attribute unset is what makes the stylesheet follow the system theme.
+      // The key must match STORAGE_KEY in src/composables/useTheme.ts.
+      try {
+        var storedTheme = localStorage.getItem('promo-bonus-theme')
+
+        if (storedTheme === 'light' || storedTheme === 'dark') {
+          document.documentElement.setAttribute('data-theme', storedTheme)
+        }
+      } catch {
+        // Storage unavailable; the system theme applies.
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>

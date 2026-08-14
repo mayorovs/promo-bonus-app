@@ -391,3 +391,38 @@ was checked to contain both theme blocks while every component declaration refer
 custom property rather than a colour value.
 
 **Commit:** Not yet committed.
+
+### 2026-08-14 — Theme toggle
+
+**Stage:** Frontend setup — light and dark theme switching.
+
+**Prompt:**
+
+```text
+Add a light and dark theme toggle component.
+
+The toggle should:
+
+- update data-theme on the root HTML element;
+- save the choice in localStorage;
+- restore the choice after a page reload;
+- use the system theme when the user has not selected one;
+- have a clear accessible label.
+
+Add the toggle to App.vue and use scoped SCSS. Verify TypeScript and the production build.
+```
+
+**Result:** A `useTheme` composable holds the theme state at module level so every caller shares one
+source of truth. It reads any stored choice on load, writes `data-theme` on the root element, and
+removes the attribute when no choice exists, which is what makes the stylesheet fall back to the
+system preference. A media query listener keeps the label correct when the operating system changes
+theme while no explicit choice is stored, and every access to local storage is guarded so private
+browsing degrades to a session-only toggle instead of failing. The `ThemeToggle` component renders a
+sun or moon icon with a visually hidden label that names the action rather than the current state,
+and uses scoped SCSS with the shared focus-ring and visually-hidden mixins. An inline script in
+`index.html` applies a stored theme before the first paint so a reload does not flash the wrong
+colours. A forced full `vue-tsc` build reported no type errors, the production build passed, and the
+built output was checked to contain the pre-paint script, the attribute handling and the hidden
+label styles.
+
+**Commit:** Not yet committed.
