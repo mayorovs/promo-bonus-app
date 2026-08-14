@@ -426,3 +426,46 @@ built output was checked to contain the pre-paint script, the attribute handling
 label styles.
 
 **Commit:** Not yet committed.
+
+### 2026-08-14 — Login page
+
+**Stage:** Frontend — login screen, before the API is connected.
+
+**Prompt:**
+
+```text
+Create a polished responsive login page for Promo Bonus App.
+
+Add:
+
+- a clean layout with a login card;
+- email and password fields;
+- custom BaseInput and BaseButton components;
+- a LoginForm component;
+- a simple application logo or text mark;
+- the theme toggle;
+- loading and disabled button states.
+
+Use the existing SCSS tokens, light and dark themes, and <style scoped lang="scss">. The page should look good on mobile and desktop and be accessible by keyboard.
+
+Do not connect the form to the API yet. Also change the page title from frontend to Promo Bonus App.
+
+Verify TypeScript and the production build.
+Organize reusable UI components in src/components/ui, authentication components in src/components/auth, and the page in src/views/LoginView.vue. Keep App.vue simple.
+```
+
+**Result:** The frontend was organised into `src/components/ui` for the reusable controls, with the
+existing theme toggle moved there, `src/components/auth` for `LoginForm`, and `src/views` for
+`LoginView`, leaving `App.vue` as a single render of the page. `BaseInput` binds a generated id to
+its label, exposes optional error text through `aria-describedby` and `aria-invalid`, and supports a
+disabled state. `BaseButton` treats loading as implying disabled so a request cannot be submitted
+twice, and pairs its spinner with a visually hidden status for screen readers. `LoginForm` keeps the
+submit button disabled until both fields have content and emits the credentials upwards rather than
+calling the API, while `LoginView` owns the loading state that will hold the request. The card
+layout is mobile first with a text mark, the theme toggle, and colours taken entirely from the
+semantic tokens so both themes work. The page title was changed to Promo Bonus App. A forced full
+`vue-tsc` build reported no type errors, the production build passed, and the built output was
+checked for the accessibility attributes, focus rings, disabled styles and the responsive
+breakpoint.
+
+**Commit:** Not yet committed.

@@ -1,72 +1,7 @@
 <script setup lang="ts">
-import ThemeToggle from '@/components/ThemeToggle.vue'
+import LoginView from '@/views/LoginView.vue'
 </script>
 
 <template>
-  <div class="app">
-    <header class="app__header">
-      <span class="app__brand">Promo Bonus</span>
-      <ThemeToggle />
-    </header>
-
-    <main class="landing">
-      <p class="landing__eyebrow">Promo bonuses</p>
-      <h1 class="landing__title">Promo Bonus App</h1>
-      <p class="landing__text">
-        The design system is in place. Authentication and the promo code features
-        follow in the next steps.
-      </p>
-    </main>
-  </div>
+  <LoginView />
 </template>
-
-<style scoped lang="scss">
-@use '@/styles/abstracts' as *;
-
-.app {
-  &__header {
-    display: flex;
-    gap: $space-sm;
-    align-items: center;
-    justify-content: space-between;
-    max-width: $layout-max-width;
-    margin: 0 auto;
-    padding: $space-sm;
-  }
-
-  &__brand {
-    @include label;
-
-    color: var(--color-text);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-}
-
-.landing {
-  max-width: $layout-max-width;
-  margin: 0 auto;
-  padding: $space-lg $space-sm;
-
-  @include respond-from('md') {
-    padding: $space-xl $space-md;
-  }
-
-  &__eyebrow {
-    @include label;
-
-    margin-bottom: $space-3xs;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  &__title {
-    margin-bottom: $space-xs;
-  }
-
-  &__text {
-    color: var(--color-text-muted);
-  }
-}
-</style>
