@@ -1,0 +1,49 @@
+@use 'variables' as v;
+
+// Type styles are mixins rather than classes, so a component keeps its own
+// semantic markup and still shares one scale. Colour is intentionally left to
+// the caller, since it is theme dependent.
+
+@mixin heading-lg {
+  font-size: v.$font-size-heading-lg;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-tight;
+  letter-spacing: -0.01em;
+}
+
+@mixin heading-md {
+  font-size: v.$font-size-heading-md;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-tight;
+}
+
+@mixin heading-sm {
+  font-size: v.$font-size-heading-sm;
+  font-weight: v.$font-weight-semibold;
+  line-height: v.$line-height-tight;
+}
+
+@mixin body {
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-body;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-base;
+}
+
+@mixin body-sm {
+  font-size: v.$font-size-body-sm;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-base;
+}
+
+@mixin label {
+  font-size: v.$font-size-label;
+  font-weight: v.$font-weight-medium;
+  line-height: v.$line-height-tight;
+}
+
+@mixin caption {
+  font-size: v.$font-size-caption;
+  font-weight: v.$font-weight-regular;
+  line-height: v.$line-height-base;
+}

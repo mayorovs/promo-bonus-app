@@ -350,3 +350,44 @@ confirmed by listing every untracked file and finding no entry under it. A force
 build reported no type errors, the production build passed, and the dev server still answered `200`.
 
 **Commit:** Not yet committed.
+
+### 2026-08-14 — Base SCSS structure and design tokens
+
+**Stage:** Frontend setup — design system, before any feature work.
+
+**Prompt:**
+
+```text
+Create the base SCSS structure in frontend/src/styles:
+
+- _colors.scss
+- _variables.scss
+- _mixins.scss
+- _typography.scss
+- _themes.scss
+- _reset.scss
+- main.scss
+
+Add semantic colors and CSS variables for light and dark themes. Set up base typography, a reset, and a few simple responsive mixins.
+
+Connect everything through main.scss. Remove the default Vite styles, components, and images that are no longer needed. Component-specific styles should use <style scoped lang="scss">.
+
+Verify TypeScript and the production build.
+```
+
+**Result:** The stylesheet layer was created following the structure documented in CLAUDE.md, with
+the palette, non-colour tokens, mixins and typography under `src/styles/abstracts` and the themes,
+reset and entry point directly under `src/styles`. Raw colour values exist only in the palette file;
+`_themes.scss` maps them to semantic custom properties for background, surface, text, border,
+primary, success, warning, danger, focus and shadows, in a light and a dark set that follows the
+operating system until an explicit `data-theme` choice overrides it. A barrel file exposes the
+tokens, mixins and typography to components while deliberately withholding the palette, so a
+component cannot reach a hex value. Mixins cover mobile-first breakpoints, a focus ring and visually
+hidden content. An `@` alias was added to Vite and to the TypeScript configuration so component
+styles can import the abstracts from any depth. The Vite starter component, images and stylesheet
+were removed and `App.vue` was reduced to a placeholder whose styles use `<style scoped lang="scss">`.
+A forced full `vue-tsc` build reported no type errors, the production build passed, and the built CSS
+was checked to contain both theme blocks while every component declaration referenced a semantic
+custom property rather than a colour value.
+
+**Commit:** Not yet committed.

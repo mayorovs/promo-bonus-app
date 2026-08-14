@@ -1,0 +1,77 @@
+@use 'sass:color';
+@use 'abstracts/colors' as c;
+
+// Semantic tokens.
+//
+// Components reference only these names, never the palette, so switching a
+// theme is a change in this file alone.
+
+@mixin light-tokens {
+  color-scheme: light;
+
+  --color-background: #{c.$grey-50};
+  --color-surface: #{c.$white};
+  --color-surface-muted: #{c.$grey-100};
+  --color-text: #{c.$grey-900};
+  --color-text-muted: #{c.$grey-500};
+  --color-border: #{c.$grey-200};
+
+  --color-primary: #{c.$indigo-500};
+  --color-primary-hover: #{c.$indigo-600};
+  --color-on-primary: #{c.$white};
+
+  --color-success: #{c.$green-600};
+  --color-warning: #{c.$amber-600};
+  --color-danger: #{c.$red-600};
+
+  --color-focus: #{c.$indigo-500};
+
+  --shadow-sm: 0 1px 2px #{color.change(c.$black, $alpha: 0.08)};
+  --shadow-md: 0 6px 20px #{color.change(c.$black, $alpha: 0.1)};
+}
+
+@mixin dark-tokens {
+  color-scheme: dark;
+
+  --color-background: #{c.$grey-900};
+  --color-surface: #{c.$grey-800};
+  --color-surface-muted: #{c.$grey-700};
+  --color-text: #{c.$grey-50};
+  --color-text-muted: #{c.$grey-400};
+  --color-border: #{c.$grey-700};
+
+  // Lighter brand and status steps, because a dark surface needs more
+  // contrast from the foreground rather than less.
+  --color-primary: #{c.$indigo-400};
+  --color-primary-hover: #{c.$indigo-300};
+  --color-on-primary: #{c.$grey-900};
+
+  --color-success: #{c.$green-400};
+  --color-warning: #{c.$amber-400};
+  --color-danger: #{c.$red-400};
+
+  --color-focus: #{c.$indigo-300};
+
+  --shadow-sm: 0 1px 2px #{color.change(c.$black, $alpha: 0.5)};
+  --shadow-md: 0 6px 20px #{color.change(c.$black, $alpha: 0.55)};
+}
+
+:root {
+  @include light-tokens;
+}
+
+// Follows the operating system until the player makes an explicit choice.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include dark-tokens;
+  }
+}
+
+// An explicit choice, stored locally, always wins over the system setting.
+:root[data-theme='light'] {
+  @include light-tokens;
+}
+
+:root[data-theme='dark'] {
+  @include dark-tokens;
+}

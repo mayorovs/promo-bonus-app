@@ -5,6 +5,12 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
 
+    /* Mirrors the `@` alias configured in vite.config.ts. Resolved relative to
+       this file, since baseUrl is deprecated as of TypeScript 6. */
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,

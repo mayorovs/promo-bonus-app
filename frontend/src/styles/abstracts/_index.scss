@@ -1,0 +1,9 @@
+// One entry point for component stylesheets: `@use '@/styles/abstracts' as *;`
+//
+// The colour palette is deliberately not forwarded. Components read colours
+// through the semantic CSS custom properties from _themes.scss, which is what
+// keeps a component readable in both themes.
+
+@forward 'variables';
+@forward 'mixins';
+@forward 'typography';

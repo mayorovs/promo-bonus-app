@@ -1,13 +1,55 @@
-// Entry point for the stylesheet. The design system tokens, themes and mixins
-// will live alongside this file; for now it only proves the SCSS toolchain is
-// wired into both the dev server and the production build.
+// The single stylesheet entry point, imported once from main.ts.
+//
+// Only the reset, the theme tokens and base typography are global; everything
+// else belongs in a component's own scoped block.
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@use 'reset';
+@use 'themes';
+@use 'abstracts/mixins' as mixins;
+@use 'abstracts/typography' as typography;
+@use 'abstracts/variables' as variables;
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  margin: 0;
+  @include typography.body;
+
+  min-height: 100vh;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  transition:
+    color variables.$transition-base,
+    background-color variables.$transition-base;
+}
+
+h1 {
+  @include typography.heading-lg;
+}
+
+h2 {
+  @include typography.heading-md;
+}
+
+h3 {
+  @include typography.heading-sm;
+}
+
+small {
+  @include typography.caption;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+
+  &:hover {
+    color: var(--color-primary-hover);
+  }
+}
+
+:focus-visible {
+  @include mixins.focus-ring;
 }
